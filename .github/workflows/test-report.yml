@@ -5,6 +5,9 @@ on:
     workflows: ['Code Test'] # runs after tests
     types:
       - completed
+permissions:
+  contents: read
+
 jobs:
   report:
     permissions:
@@ -14,14 +17,19 @@ jobs:
       pull-requests: write # Required to write comments
     runs-on: ubuntu-latest
     steps:
+    - name: Harden Runner
+      uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+      with:
+        egress-policy: audit
+
     - name: Download and Extract Artifacts
-      uses: dawidd6/action-download-artifact@v6
+      uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11 # v6
       with:
         run_id: ${{ github.event.workflow_run.id }}
         path: artifacts
 
     - name: Publish Test Results
-      uses: EnricoMi/publish-unit-test-result-action@v2
+      uses: EnricoMi/publish-unit-test-result-action@82082dac68ad6a19d980f8ce817e108b9f496c2a # v2.17.1
       with:
         commit: ${{ github.event.workflow_run.head_sha }}
         event_file: artifacts/Event File/event.json
